@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .control-button {
+            transition: all 0.3s ease;
+            min-height: 100px;
+        }
+        .control-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .control-button:active {
+            transform: translateY(0);
+        }
+        .current-number {
+            font-size: 4rem;
+            font-weight: bold;
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+        }
+        .clinic-info {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 2px solid #3b82f6;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+        .notification {
+            animation: slideInRight 0.5s ease-out;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center">
+                        <i class="fas fa-hospital text-2xl text-blue-600 ml-3"></i>
+                        <span class="text-xl font-bold text-gray-800">نظام إدارة الانتظار</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <span class="text-gray-600">لوحة التحكم</span>
+                    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt ml-1"></i>
+                        خروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center pt-16">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <i class="fas fa-key text-6xl text-blue-600 mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-800">تسجيل الدخول</h2>
+                <p class="text-gray-600">اختر العيادة وأدخل كلمة السر</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">اختر العيادة</label>
+                    <select id="clinicSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">-- اختر العيادة --</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">كلمة السر</label>
+                    <input type="password" id="passwordInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="أدخل كلمة السر">
+                </div>
+                
+                <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-bold text-lg">
+                    <i class="fas fa-sign-in-alt ml-2"></i>
+                    دخول
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div id="controlSection" class="hidden min-h-screen pt-16">
+        <div class="max-w-7xl mx-auto p-6">
+            <!-- Clinic Info -->
+            <div class="clinic-info rounded-2xl p-6 mb-6 text-center text-white">
+                <h2 id="clinicName" class="text-3xl font-bold mb-2">اسم العيادة</h2>
+                <div class="flex justify-center items-center space-x-8 space-x-reverse">
+                    <div>
+                        <div class="text-lg text-blue-200">الرقم الحالي</div>
+                        <div id="currentNumber" class="current-number text-yellow-400">0</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="clinicStatus" class="text-lg font-semibold text-green-400">
+                            <i class="fas fa-check-circle ml-2"></i>
+                            نشطة
+                        </div>
+                        <div id="lastCallTime" class="text-sm text-gray-300">آخر نداء: --:--:--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                <button onclick="nextPatient()" class="control-button bg-green-600 text-white rounded-xl p-4 hover:bg-green-700">
+                    <i class="fas fa-arrow-up text-3xl mb-2"></i>
+                    <div class="font-bold">العميل التالي</div>
+                    <div class="text-sm opacity-80">F1</div>
+                </button>
+                
+                <button onclick="previousPatient()" class="control-button bg-red-600 text-white rounded-xl p-4 hover:bg-red-700">
+                    <i class="fas fa-arrow-down text-3xl mb-2"></i>
+                    <div class="font-bold">العميل السابق</div>
+                    <div class="text-sm opacity-80">F2</div>
+                </button>
+                
+                <button onclick="repeatCall()" class="control-button bg-blue-600 text-white rounded-xl p-4 hover:bg-blue-700">
+                    <i class="fas fa-redo text-3xl mb-2"></i>
+                    <div class="font-bold">تكرار النداء</div>
+                    <div class="text-sm opacity-80">F3</div>
+                </button>
+                
+                <button onclick="resetClinic()" class="control-button bg-gray-600 text-white rounded-xl p-4 hover:bg-gray-700">
+                    <i class="fas fa-refresh text-3xl mb-2"></i>
+                    <div class="font-bold">تصفير العيادة</div>
+                    <div class="text-sm opacity-80">F4</div>
+                </button>
+                
+                <button onclick="callSpecificNumber()" class="control-button bg-purple-600 text-white rounded-xl p-4 hover:bg-purple-700">
+                    <i class="fas fa-bullhorn text-3xl mb-2"></i>
+                    <div class="font-bold">نداء رقم محدد</div>
+                    <div class="text-sm opacity-80">F5</div>
+                </button>
+                
+                <button onclick="alertName()" class="control-button bg-indigo-600 text-white rounded-xl p-4 hover:bg-indigo-700">
+                    <i class="fas fa-exclamation text-3xl mb-2"></i>
+                    <div class="font-bold">تنبيه اسم</div>
+                    <div class="text-sm opacity-80">F6</div>
+                </button>
+                
+                <button onclick="doctorAlert()" class="control-button bg-yellow-600 text-white rounded-xl p-4 hover:bg-yellow-700">
+                    <i class="fas fa-user-md text-3xl mb-2"></i>
+                    <div class="font-bold">تنبيه طبيب</div>
+                    <div class="text-sm opacity-80">F7</div>
+                </button>
+                
+                <button onclick="transferPatient()" class="control-button bg-orange-600 text-white rounded-xl p-4 hover:bg-orange-700">
+                    <i class="fas fa-exchange-alt text-3xl mb-2"></i>
+                    <div class="font-bold">تحويل مريض</div>
+                    <div class="text-sm opacity-80">F8</div>
+                </button>
+                
+                <button onclick="pauseClinic()" class="control-button bg-pink-600 text-white rounded-xl p-4 hover:bg-pink-700">
+                    <i class="fas fa-pause text-3xl mb-2"></i>
+                    <div class="font-bold">إيقاف العيادة</div>
+                    <div class="text-sm opacity-80">F9</div>
+                </button>
+                
+                <button onclick="resumeClinic()" class="control-button bg-teal-600 text-white rounded-xl p-4 hover:bg-teal-700">
+                    <i class="fas fa-play text-3xl mb-2"></i>
+                    <div class="font-bold">استئناف العيادة</div>
+                    <div class="text-sm opacity-80">F10</div>
+                </button>
+                
+                <button onclick="emergencyAlert()" class="control-button bg-red-800 text-white rounded-xl p-4 hover:bg-red-900">
+                    <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                    <div class="font-bold">طوارئ</div>
+                    <div class="text-sm opacity-80">F11</div>
+                </button>
+                
+                <button onclick="logout()" class="control-button bg-slate-600 text-white rounded-xl p-4 hover:bg-slate-700">
+                    <i class="fas fa-sign-out-alt text-3xl mb-2"></i>
+                    <div class="font-bold">خروج</div>
+                    <div class="text-sm opacity-80">ESC</div>
+                </button>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-bolt text-yellow-500 ml-3"></i>
+                    إجراءات سريعة
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-xl p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="todayPatients">0</div>
+                        <div class="text-sm text-blue-800">مرضى اليوم</div>
+                    </div>
+                    
+                    <div class="bg-green-50 rounded-xl p-4 text-center">
+                        <div class="text-2xl font-bold text-green-600" id="totalCalls">0</div>
+                        <div class="text-sm text-green-800">إجمالي النداءات</div>
+                    </div>
+                    
+                    <div class="bg-purple-50 rounded-xl p-4 text-center">
+                        <div class="text-2xl font-bold text-purple-600" id="averageWait">0</div>
+                        <div class="text-sm text-purple-800">متوسط الانتظار (دق)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification fixed top-20 left-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50">
+        <i class="fas fa-check-circle ml-2"></i>
+        <span id="notificationText">تم بنجاح</span>
+    </div>
+
+    <!-- Input Modal -->
+    <div id="inputModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4">
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-800 mb-4">إدخال رقم</h3>
+            <div class="mb-4">
+                <input type="number" id="modalInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="أدخل الرقم">
+            </div>
+            <div class="flex justify-end space-x-4 space-x-reverse">
+                <button onclick="closeModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">إلغاء</button>
+                <button onclick="confirmModal()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase configuration
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-auth-domain",
+            databaseURL: "your-database-url",
+            projectId: "your-project-id",
+            storageBucket: "your-storage-bucket",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+        }
+
+        // Global variables
+        let currentClinic = null;
+        let currentNumber = 0;
+        let modalCallback = null;
+
+        // Load clinics in select
+        function loadClinicsSelect() {
+            const clinicSelect = document.getElementById('clinicSelect');
+            
+            if (typeof firebase !== 'undefined') {
+                database.ref('clinics').once('value').then(snapshot => {
+                    const clinics = snapshot.val() || {};
+                    clinicSelect.innerHTML = '<option value="">-- اختر العيادة --</option>';
+                    Object.keys(clinics).forEach(id => {
+                        const clinic = clinics[id];
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = `${clinic.name} (${clinic.number})`;
+                        clinicSelect.appendChild(option);
+                    });
+                });
+            } else {
+                // Load from localStorage
+                const clinics = JSON.parse(localStorage.getItem('clinics') || '[]');
+                clinicSelect.innerHTML = '<option value="">-- اختر العيادة --</option>';
+                clinics.forEach(clinic => {
+                    const option = document.createElement('option');
+                    option.value = clinic.id;
+                    option.textContent = `${clinic.name} (${clinic.number})`;
+                    clinicSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Login function
+        function login() {
+            const clinicId = document.getElementById('clinicSelect').value;
+            const password = document.getElementById('passwordInput').value;
+            
+            if (!clinicId) {
+                showNotification('الرجاء اختيار العيادة', 'error');
+                return;
+            }
+            
+            if (typeof firebase !== 'undefined') {
+                database.ref('clinics/' + clinicId).once('value').then(snapshot => {
+                    const clinic = snapshot.val();
+                    if (clinic && clinic.password === password) {
+                        currentClinic = { id: clinicId, ...clinic };
+                        showControlPanel();
+                    } else {
+                        showNotification('كلمة السر غير صحيحة', 'error');
+                    }
+                });
+            } else {
+                // Check in localStorage
+                const clinics = JSON.parse(localStorage.getItem('clinics') || '[]');
+                const clinic = clinics.find(c => c.id === clinicId);
+                if (clinic && clinic.password === password) {
+                    currentClinic = clinic;
+                    showControlPanel();
+                } else {
+                    showNotification('كلمة السر غير صحيحة', 'error');
+                }
+            }
+        }
+
+        // Show control panel
+        function showControlPanel() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('controlSection').classList.remove('hidden');
+            
+            document.getElementById('clinicName').textContent = currentClinic.name;
+            currentNumber = currentClinic.currentNumber || 0;
+            document.getElementById('currentNumber').textContent = currentNumber;
+            
+            updateLastCallTime();
+            loadStatistics();
+        }
+
+        // Control functions
+        function nextPatient() {
+            currentNumber++;
+            updateCurrentNumber();
+            makeCall();
+            showNotification('تم الانتقال إلى العميل التالي');
+        }
+
+        function previousPatient() {
+            if (currentNumber > 0) {
+                currentNumber--;
+                updateCurrentNumber();
+                makeCall();
+                showNotification('تم الرجوع إلى العميل السابق');
+            }
+        }
+
+        function repeatCall() {
+            makeCall();
+            showNotification('تم تكرار النداء');
+        }
+
+        function resetClinic() {
+            if (confirm('هل أنت متأكد من تصفير العيادة؟')) {
+                currentNumber = 0;
+                updateCurrentNumber();
+                showNotification('تم تصفير العيادة');
+            }
+        }
+
+        function callSpecificNumber() {
+            showModal('نداء رقم محدد', 'أدخل رقم المريض:', (number) => {
+                currentNumber = parseInt(number);
+                updateCurrentNumber();
+                makeCall();
+                showNotification(`تم النداء على الرقم ${number}`);
+            });
+        }
+
+        function alertName() {
+            showModal('تنبيه اسم', 'أدخل اسم المريض:', (name) => {
+                makeAlert(`على المريض ${name} التوجه إلى ${currentClinic.name}`);
+                showNotification(`تم إرسال تنبيه للمريض ${name}`);
+            });
+        }
+
+        function doctorAlert() {
+            showModal('تنبيه طبيب', 'أدخل رقم العيادة المرسل إليها:', (clinicId) => {
+                makeAlert(`تنبيه من ${currentClinic.name} إلى العيادة ${clinicId}`);
+                showNotification('تم إرسال تنبيه للطبيب');
+            });
+        }
+
+        function transferPatient() {
+            showModal('تحويل مريض', 'أدخل رقم المريض:', (patientNumber) => {
+                showModal('تحويل مريض', 'أدخل رقم العيادة المحول إليها:', (targetClinic) => {
+                    makeAlert(`تم تحويل المريض رقم ${patientNumber} من ${currentClinic.name} إلى العيادة ${targetClinic}`);
+                    showNotification(`تم تحويل المريض رقم ${patientNumber}`);
+                });
+            });
+        }
+
+        function pauseClinic() {
+            updateClinicStatus('paused');
+            document.getElementById('clinicStatus').innerHTML = '<i class="fas fa-pause-circle ml-2"></i>متوقفة';
+            document.getElementById('clinicStatus').className = 'text-lg font-semibold text-yellow-400';
+            showNotification('تم إيقاف العيادة مؤقتاً');
+        }
+
+        function resumeClinic() {
+            updateClinicStatus('active');
+            document.getElementById('clinicStatus').innerHTML = '<i class="fas fa-check-circle ml-2"></i>نشطة';
+            document.getElementById('clinicStatus').className = 'text-lg font-semibold text-green-400';
+            showNotification('تم استئناف العيادة');
+        }
+
+        function emergencyAlert() {
+            if (confirm('هل أنت متأكد من إرسال تنبيه طوارئ؟')) {
+                makeAlert('تنبيه طوارئ - الرجاء التوجه إلى الإدارة فوراً');
+                showNotification('تم إرسال تنبيه الطوارئ');
+            }
+        }
+
+        // Update functions
+        function updateCurrentNumber() {
+            document.getElementById('currentNumber').textContent = currentNumber;
+            
+            if (typeof firebase !== 'undefined') {
+                database.ref('clinics/' + currentClinic.id).update({
+                    currentNumber: currentNumber,
+                    lastCall: Date.now()
+                });
+            } else {
+                const clinics = JSON.parse(localStorage.getItem('clinics') || '[]');
+                const index = clinics.findIndex(c => c.id === currentClinic.id);
+                if (index !== -1) {
+                    clinics[index].currentNumber = currentNumber;
+                    clinics[index].lastCall = Date.now();
+                    localStorage.setItem('clinics', JSON.stringify(clinics));
+                }
+            }
+            
+            updateLastCallTime();
+        }
+
+        function updateClinicStatus(status) {
+            if (typeof firebase !== 'undefined') {
+                database.ref('clinics/' + currentClinic.id).update({
+                    status: status
+                });
+            } else {
+                const clinics = JSON.parse(localStorage.getItem('clinics') || '[]');
+                const index = clinics.findIndex(c => c.id === currentClinic.id);
+                if (index !== -1) {
+                    clinics[index].status = status;
+                    localStorage.setItem('clinics', JSON.stringify(clinics));
+                }
+            }
+        }
+
+        function updateLastCallTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ar-EG');
+            document.getElementById('lastCallTime').textContent = `آخر نداء: ${timeString}`;
+        }
+
+        function loadStatistics() {
+            // Simulate loading statistics
+            document.getElementById('todayPatients').textContent = Math.floor(Math.random() * 50) + 20;
+            document.getElementById('totalCalls').textContent = Math.floor(Math.random() * 100) + 50;
+            document.getElementById('averageWait').textContent = Math.floor(Math.random() * 30) + 10;
+        }
+
+        // Audio functions
+        function makeCall() {
+            // Play ding sound
+            const dingAudio = new Audio('audio/ding.mp3');
+            dingAudio.play().catch(e => console.log('Could not play audio:', e));
+            
+            // Then play number
+            setTimeout(() => {
+                const numberAudio = new Audio(`audio/${currentNumber}.mp3`);
+                numberAudio.play().catch(e => console.log('Could not play audio:', e));
+            }, 1000);
+            
+            // Then play clinic
+            setTimeout(() => {
+                const clinicAudio = new Audio(`audio/clinic${currentClinic.number}.mp3`);
+                clinicAudio.play().catch(e => console.log('Could not play audio:', e));
+            }, 2000);
+            
+            // Send call to display
+            if (typeof firebase !== 'undefined') {
+                database.ref('calls').push({
+                    clinicId: currentClinic.id,
+                    patientNumber: currentNumber,
+                    timestamp: Date.now()
+                });
+            }
+        }
+
+        function makeAlert(message) {
+            if (typeof firebase !== 'undefined') {
+                database.ref('alerts').push({
+                    message: message,
+                    clinicId: currentClinic.id,
+                    timestamp: Date.now()
+                });
+            }
+        }
+
+        // Modal functions
+        function showModal(title, placeholder, callback) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalInput').placeholder = placeholder;
+            document.getElementById('modalInput').value = '';
+            document.getElementById('inputModal').classList.remove('hidden');
+            modalCallback = callback;
+        }
+
+        function closeModal() {
+            document.getElementById('inputModal').classList.add('hidden');
+            modalCallback = null;
+        }
+
+        function confirmModal() {
+            const value = document.getElementById('modalInput').value;
+            if (value && modalCallback) {
+                modalCallback(value);
+                closeModal();
+            }
+        }
+
+        // Notification function
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = `notification fixed top-20 left-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+                type === 'error' ? 'bg-red-500' : 'bg-green-500'
+            } text-white`;
+            
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('هل أنت متأكد من الخروج؟')) {
+                currentClinic = null;
+                document.getElementById('controlSection').classList.add('hidden');
+                document.getElementById('loginSection').classList.remove('hidden');
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (!currentClinic) return;
+            
+            switch(e.key) {
+                case 'F1':
+                    e.preventDefault();
+                    nextPatient();
+                    break;
+                case 'F2':
+                    e.preventDefault();
+                    previousPatient();
+                    break;
+                case 'F3':
+                    e.preventDefault();
+                    repeatCall();
+                    break;
+                case 'F4':
+                    e.preventDefault();
+                    resetClinic();
+                    break;
+                case 'F5':
+                    e.preventDefault();
+                    callSpecificNumber();
+                    break;
+                case 'F6':
+                    e.preventDefault();
+                    alertName();
+                    break;
+                case 'F7':
+                    e.preventDefault();
+                    doctorAlert();
+                    break;
+                case 'F8':
+                    e.preventDefault();
+                    transferPatient();
+                    break;
+                case 'F9':
+                    e.preventDefault();
+                    pauseClinic();
+                    break;
+                case 'F10':
+                    e.preventDefault();
+                    resumeClinic();
+                    break;
+                case 'F11':
+                    e.preventDefault();
+                    emergencyAlert();
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    logout();
+                    break;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClinicsSelect();
+        });
+    </script>
+</body>
+</html>

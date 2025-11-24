@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طباعة الأرقام - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .print-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+        }
+        .print-card {
+            width: 5cm;
+            height: 5cm;
+            border: 2px dashed #ccc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: white;
+            page-break-inside: avoid;
+        }
+        @media print {
+            body {
+                background: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+                padding: 0.5rem;
+            }
+            .print-card {
+                width: 4.5cm;
+                height: 4.5cm;
+                border: 1px solid #ccc;
+                margin: 0.25cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="no-print bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center">
+                        <i class="fas fa-hospital text-2xl text-blue-600 ml-3"></i>
+                        <span class="text-xl font-bold text-gray-800">نظام إدارة الانتظار</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <span class="text-gray-600">طباعة الأرقام</span>
+                    <button onclick="window.print()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-print ml-2"></i>
+                        طباعة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-16 min-h-screen p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Print Settings -->
+            <div class="no-print bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-cog text-blue-600 ml-3"></i>
+                    إعدادات الطباعة
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">اختر العيادة</label>
+                        <select id="clinicSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">-- اختر العيادة --</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">من رقم</label>
+                        <input type="number" id="fromNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="1" min="1">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">إلى رقم</label>
+                        <input type="number" id="toNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="20" min="1">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">مدة الانتظار (دقائق)</label>
+                        <input type="number" id="waitTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="15" min="1">
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center mt-6">
+                    <div class="flex space-x-4 space-x-reverse">
+                        <button onclick="generateCards()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-magic ml-2"></i>
+                            توليد البطاقات
+                        </button>
+                        
+                        <button onclick="previewCards()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-eye ml-2"></i>
+                            معاينة
+                        </button>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-info-circle ml-1"></i>
+                        سيتم طباعة <span id="totalCards">0</span> بطاقة
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print Preview -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">معاينة الطباعة</h3>
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-file-alt ml-1"></i>
+                        A4 - 16 بطاقة في الصفحة
+                    </div>
+                </div>
+                
+                <div id="printPreview" class="border-2 border-dashed border-gray-300 rounded-lg p-4 min-h-96">
+                    <div class="text-center text-gray-500 py-12">
+                        <i class="fas fa-print text-6xl mb-4"></i>
+                        <p>اضغط على "توليد البطاقات" لعرض المعاينة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Area (Hidden) -->
+    <div id="printArea" class="hidden">
+        <!-- Cards will be generated here for printing -->
+    </div>
+
+    <script>
+        // Initialize Firebase configuration
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-auth-domain",
+            databaseURL: "your-database-url",
+            projectId: "your-project-id",
+            storageBucket: "your-storage-bucket",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+        }
+
+        // Global variables
+        let centerName = '';
+
+        // Load center name
+        function loadCenterName() {
+            centerName = localStorage.getItem('centerName') || 'المركز الطبي';
+        }
+
+        // Load clinics
+        function loadClinics() {
+            const clinicSelect = document.getElementById('clinicSelect');
+            
+            if (typeof firebase !== 'undefined') {
+                database.ref('clinics').once('value').then(snapshot => {
+                    const clinics = snapshot.val() || {};
+                    clinicSelect.innerHTML = '<option value="">-- اختر العيادة --</option>';
+                    Object.keys(clinics).forEach(id => {
+                        const clinic = clinics[id];
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = `${clinic.name} (${clinic.number})`;
+                        clinicSelect.appendChild(option);
+                    });
+                });
+            } else {
+                // Load from localStorage
+                const clinics = JSON.parse(localStorage.getItem('clinics') || '[]');
+                clinicSelect.innerHTML = '<option value="">-- اختر العيادة --</option>';
+                clinics.forEach(clinic => {
+                    const option = document.createElement('option');
+                    option.value = clinic.id;
+                    option.textContent = `${clinic.name} (${clinic.number})`;
+                    clinicSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Generate cards
+        function generateCards() {
+            const clinicId = document.getElementById('clinicSelect').value;
+            const fromNumber = parseInt(document.getElementById('fromNumber').value);
+            const toNumber = parseInt(document.getElementById('toNumber').value);
+            const waitTime = parseInt(document.getElementById('waitTime').value);
+            
+            if (!clinicId) {
+                alert('الرجاء اختيار العيادة');
+                return;
+            }
+            
+            if (fromNumber > toNumber) {
+                alert('رقم البداية يجب أن يكون أقل من رقم النهاية');
+                return;
+            }
+            
+            // Get clinic name
+            let clinicName = '';
+            if (typeof firebase !== 'undefined') {
+                database.ref('clinics/' + clinicId).once('value').then(snapshot => {
+                    const clinic = snapshot.value();
+                    if (clinic) {
+                        generateCardsHTML(clinic.name, fromNumber, toNumber, waitTime);
+                    }
+                });
+            } else {
+                const clinics = JSON.parse(localStorage.getItem('clinics') || '[]');
+                const clinic = clinics.find(c => c.id === clinicId);
+                if (clinic) {
+                    generateCardsHTML(clinic.name, fromNumber, toNumber, waitTime);
+                }
+            }
+        }
+
+        // Generate cards HTML
+        function generateCardsHTML(clinicName, fromNumber, toNumber, waitTime) {
+            const totalCards = toNumber - fromNumber + 1;
+            document.getElementById('totalCards').textContent = totalCards;
+            
+            const printPreview = document.getElementById('printPreview');
+            const printArea = document.getElementById('printArea');
+            
+            // Clear previous content
+            printPreview.innerHTML = '';
+            printArea.innerHTML = '';
+            
+            // Create print grid
+            const grid = document.createElement('div');
+            grid.className = 'print-grid';
+            
+            for (let i = fromNumber; i <= toNumber; i++) {
+                const card = createCard(i, clinicName, waitTime);
+                grid.appendChild(card);
+            }
+            
+            printPreview.appendChild(grid.cloneNode(true));
+            printArea.appendChild(grid);
+        }
+
+        // Create individual card
+        function createCard(number, clinicName, waitTime) {
+            const card = document.createElement('div');
+            card.className = 'print-card';
+            
+            const today = new Date();
+            const dateString = today.toLocaleDateString('ar-EG');
+            const estimatedTime = new Date(today.getTime() + (waitTime * number * 60000));
+            const timeString = estimatedTime.toLocaleTimeString('ar-EG', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            card.innerHTML = `
+                <div class="w-full">
+                    <div class="text-xs font-bold text-gray-600 mb-1">${centerName}</div>
+                    <div class="text-3xl font-bold text-blue-600 mb-1">${number}</div>
+                    <div class="text-xs text-gray-700 mb-1">${clinicName}</div>
+                    <div class="text-xs text-gray-500 mb-1">${dateString}</div>
+                    <div class="text-xs text-red-600 font-bold">الاستلام حوالي: ${timeString}</div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Preview cards
+        function previewCards() {
+            const printPreview = document.getElementById('printPreview');
+            if (printPreview.children.length > 0) {
+                // Scroll to preview
+                printPreview.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('الرجاء توليد البطاقات أولاً');
+            }
+        }
+
+        // Update total cards count
+        function updateTotalCards() {
+            const fromNumber = parseInt(document.getElementById('fromNumber').value) || 0;
+            const toNumber = parseInt(document.getElementById('toNumber').value) || 0;
+            const total = Math.max(0, toNumber - fromNumber + 1);
+            document.getElementById('totalCards').textContent = total;
+        }
+
+        // Event listeners
+        document.getElementById('fromNumber').addEventListener('input', updateTotalCards);
+        document.getElementById('toNumber').addEventListener('input', updateTotalCards);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCenterName();
+            loadClinics();
+            updateTotalCards();
+        });
+
+        // Print event
+        window.addEventListener('beforeprint', function() {
+            document.body.innerHTML = document.getElementById('printArea').innerHTML;
+        });
+
+        window.addEventListener('afterprint', function() {
+            location.reload();
+        });
+    </script>
+</body>
+</html>

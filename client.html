@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متابعة الانتظار - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .number-display {
+            font-size: 6rem;
+            font-weight: bold;
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .clinic-card {
+            transition: all 0.3s ease;
+        }
+        .clinic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .notification {
+            animation: slideInUp 0.5s ease-out;
+        }
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .waiting-animation {
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center">
+                        <i class="fas fa-hospital text-2xl text-blue-600 ml-3"></i>
+                        <span class="text-xl font-bold text-gray-800">نظام إدارة الانتظار</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <span class="text-gray-600">متابعة الانتظار</span>
+                    <button onclick="refreshData()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-refresh ml-1"></i>
+                        تحديث
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-16 min-h-screen p-6">
+        <div class="max-w-4xl mx-auto">
+            <!-- Welcome Section -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-6 text-center">
+                <i class="fas fa-mobile-alt text-6xl text-blue-600 mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">متابعة رقم الانتظار</h2>
+                <p class="text-gray-600">يمكنك متابعة رقمك في الانتظار من خلال هاتفك المحمول</p>
+            </div>
+
+            <!-- Clinic Selection -->
+            <div id="clinicSelection" class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-hospital-alt text-purple-600 ml-3"></i>
+                    اختر العيادة
+                </h3>
+                
+                <div id="clinicsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Clinics will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Client Tracking -->
+            <div id="clientTracking" class="hidden bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <div class="text-center mb-6">
+                    <h3 id="selectedClinicName" class="text-2xl font-bold text-gray-800 mb-2">اسم العيادة</h3>
+                    <p class="text-gray-600">الرقم الحالي في العيادة</p>
+                </div>
+                
+                <div class="text-center mb-6">
+                    <div id="currentNumberDisplay" class="number-display text-blue-600 mb-4">0</div>
+                    <div class="text-lg text-gray-700">
+                        <span id="waitingCount">0</span>
+                        <span>أشخاص قبلك في الانتظار</span>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                    <div class="flex justify-between items-center">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600" id="yourNumber">-</div>
+                            <div class="text-sm text-gray-600">رقمك</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-orange-600" id="estimatedTime">-</div>
+                            <div class="text-sm text-gray-600">الوقت المتوقع (دقائق)</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600" id="lastUpdate">-</div>
+                            <div class="text-sm text-gray-600">آخر تحديث</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="waiting-animation">
+                        <i class="fas fa-clock text-4xl text-blue-500 mb-2"></i>
+                    </div>
+                    <p class="text-gray-600">يرجى الانتظار حتى يتم النداء على رقمك</p>
+                </div>
+            </div>
+
+            <!-- Number Input -->
+            <div id="numberInput" class="hidden bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">أدخل رقمك</h3>
+                <div class="max-w-md mx-auto">
+                    <div class="mb-4">
+                        <input type="number" id="clientNumber" class="w-full px-4 py-3 text-2xl text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="أدخل رقمك" min="1">
+                    </div>
+                    <div class="mb-4">
+                        <input type="email" id="clientEmail" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="بريدك الإلكتروني (اختياري)">
+                    </div>
+                    <div class="mb-6">
+                        <input type="tel" id="clientPhone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="رقم هاتفك (اختياري)">
+                    </div>
+                    <button onclick="startTracking()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-bold text-lg">
+                        <i class="fas fa-play ml-2"></i>
+                        بدء المتابعة
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notifications Settings -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-bell text-yellow-600 ml-3"></i>
+                    إعدادات التنبيهات
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-xl p-4 text-center">
+                        <i class="fas fa-envelope text-3xl text-blue-600 mb-2"></i>
+                        <div class="font-bold text-blue-800">البريد الإلكتروني</div>
+                        <div class="text-sm text-blue-600">تنبيه عبر الإيميل</div>
+                    </div>
+                    
+                    <div class="bg-green-50 rounded-xl p-4 text-center">
+                        <i class="fab fa-whatsapp text-3xl text-green-600 mb-2"></i>
+                        <div class="font-bold text-green-800">واتساب</div>
+                        <div class="text-sm text-green-600">تنبيه عبر الواتس</div>
+                    </div>
+                    
+                    <div class="bg-red-50 rounded-xl p-4 text-center">
+                        <i class="fas fa-volume-up text-3xl text-red-600 mb-2"></i>
+                        <div class="font-bold text-red-800">صوتي</div>
+                        <div class="text-sm text-red-600">تنبيه صوتي</div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-info-circle ml-1"></i>
+                        سيتم تنبيهك عند اقتراب دورك بـ 3 أرقام
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification fixed bottom-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50">
+        <i class="fas fa-bell ml-2"></i>
+        <span id="notificationText">تم التحديث</span>
+    </div>
+
+    <!-- Your Turn Modal -->
+    <div id="yourTurnModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4 text-center">
+            <i class="fas fa-bell text-6xl text-green-500 mb-4 animate-bounce"></i>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">دورك الآن!</h3>
+            <p class="text-gray-600 mb-6">يرجى التوجه إلى العيادة فوراً</p>
+            <button onclick="closeYourTurnModal()" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                <i class="fas fa-check ml-2"></i>
+                حسناً
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase configuration
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-auth-domain",
+            databaseURL: "your-database-url",
+            projectId: "your-project-id",
+            storageBucket: "your-storage-bucket",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+        }
+
+        // Global variables
+        let clinics = [];
+        let selectedClinic = null;
+        let clientNumber = 0;
+        let trackingInterval = null;
+
+        // Load clinics
+        function loadClinics() {
+            const clinicsGrid = document.getElementById('clinicsGrid');
+            
+            if (typeof firebase !== 'undefined') {
+                database.ref('clinics').on('value', snapshot => {
+                    const clinicsData = snapshot.val() || {};
+                    clinics = Object.keys(clinicsData).map(id => ({
+                        id,
+                        ...clinicsData[id]
+                    }));
+                    displayClinics();
+                });
+            } else {
+                // Load from localStorage
+                const storedClinics = JSON.parse(localStorage.getItem('clinics') || '[]');
+                clinics = storedClinics;
+                displayClinics();
+            }
+        }
+
+        // Display clinics
+        function displayClinics() {
+            const clinicsGrid = document.getElementById('clinicsGrid');
+            clinicsGrid.innerHTML = '';
+            
+            clinics.forEach(clinic => {
+                const clinicCard = document.createElement('div');
+                clinicCard.className = 'clinic-card bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 cursor-pointer border-2 border-transparent hover:border-blue-300';
+                
+                const statusColor = clinic.status === 'active' ? 'text-green-600' : 'text-yellow-600';
+                const statusIcon = clinic.status === 'active' ? 'fa-check-circle' : 'fa-pause-circle';
+                
+                clinicCard.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-hospital-alt text-4xl text-blue-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">${clinic.name}</h4>
+                        <div class="text-3xl font-bold text-blue-600 mb-2">${clinic.currentNumber || 0}</div>
+                        <div class="text-sm text-gray-600 mb-2">الرقم الحالي</div>
+                        <div class="flex items-center justify-center text-sm ${statusColor}">
+                            <i class="fas ${statusIcon} ml-1"></i>
+                            ${clinic.status === 'active' ? 'نشطة' : 'متوقفة'}
+                        </div>
+                    </div>
+                `;
+                
+                clinicCard.onclick = () => selectClinic(clinic);
+                clinicsGrid.appendChild(clinicCard);
+            });
+        }
+
+        // Select clinic
+        function selectClinic(clinic) {
+            selectedClinic = clinic;
+            document.getElementById('selectedClinicName').textContent = clinic.name;
+            document.getElementById('currentNumberDisplay').textContent = clinic.currentNumber || 0;
+            
+            document.getElementById('clinicSelection').classList.add('hidden');
+            document.getElementById('numberInput').classList.remove('hidden');
+        }
+
+        // Start tracking
+        function startTracking() {
+            const number = parseInt(document.getElementById('clientNumber').value);
+            const email = document.getElementById('clientEmail').value;
+            const phone = document.getElementById('clientPhone').value;
+            
+            if (!number || number <= 0) {
+                alert('الرجاء إدخال رقم صحيح');
+                return;
+            }
+            
+            clientNumber = number;
+            
+            // Save client info
+            const clientInfo = {
+                clinicId: selectedClinic.id,
+                number: number,
+                email: email,
+                phone: phone,
+                timestamp: Date.now()
+            };
+            
+            if (typeof firebase !== 'undefined') {
+                database.ref('clients').push(clientInfo);
+            } else {
+                let clients = JSON.parse(localStorage.getItem('clients') || '[]');
+                clients.push(clientInfo);
+                localStorage.setItem('clients', JSON.stringify(clients));
+            }
+            
+            document.getElementById('numberInput').classList.add('hidden');
+            document.getElementById('clientTracking').classList.remove('hidden');
+            
+            document.getElementById('yourNumber').textContent = number;
+            
+            startTrackingUpdates();
+            showNotification('تم بدء المتابعة بنجاح');
+        }
+
+        // Start tracking updates
+        function startTrackingUpdates() {
+            updateTracking();
+            trackingInterval = setInterval(updateTracking, 5000); // Update every 5 seconds
+        }
+
+        // Update tracking
+        function updateTracking() {
+            if (!selectedClinic) return;
+            
+            let currentClinicData = selectedClinic;
+            
+            if (typeof firebase !== 'undefined') {
+                database.ref('clinics/' + selectedClinic.id).once('value').then(snapshot => {
+                    currentClinicData = snapshot.val();
+                    if (currentClinicData) {
+                        updateTrackingDisplay(currentClinicData);
+                    }
+                });
+            } else {
+                // Update from localStorage
+                const clinics = JSON.parse(localStorage.getItem('clinics') || '[]');
+                const updatedClinic = clinics.find(c => c.id === selectedClinic.id);
+                if (updatedClinic) {
+                    currentClinicData = updatedClinic;
+                    updateTrackingDisplay(currentClinicData);
+                }
+            }
+        }
+
+        // Update tracking display
+        function updateTrackingDisplay(clinicData) {
+            const currentNumber = clinicData.currentNumber || 0;
+            const waitingCount = Math.max(0, clientNumber - currentNumber - 1);
+            const estimatedTime = waitingCount * 15; // Assume 15 minutes per patient
+            
+            document.getElementById('currentNumberDisplay').textContent = currentNumber;
+            document.getElementById('waitingCount').textContent = waitingCount;
+            document.getElementById('estimatedTime').textContent = estimatedTime;
+            
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('ar-EG');
+            
+            // Check if it's client's turn
+            if (currentNumber >= clientNumber) {
+                showYourTurnModal();
+                stopTracking();
+            } else if (waitingCount <= 3 && waitingCount > 0) {
+                showNotification(`اقترب دورك! تبقى ${waitingCount} أشخاص فقط`);
+            }
+        }
+
+        // Show your turn modal
+        function showYourTurnModal() {
+            document.getElementById('yourTurnModal').classList.remove('hidden');
+            
+            // Play notification sound
+            const audio = new Audio('audio/ding.mp3');
+            audio.play().catch(e => console.log('Could not play audio:', e));
+        }
+
+        // Close your turn modal
+        function closeYourTurnModal() {
+            document.getElementById('yourTurnModal').classList.add('hidden');
+            // Return to clinic selection
+            document.getElementById('clientTracking').classList.add('hidden');
+            document.getElementById('clinicSelection').classList.remove('hidden');
+        }
+
+        // Stop tracking
+        function stopTracking() {
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+        }
+
+        // Refresh data
+        function refreshData() {
+            if (selectedClinic) {
+                updateTracking();
+            } else {
+                loadClinics();
+            }
+            showNotification('تم تحديث البيانات');
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClinics();
+        });
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Page is hidden, reduce update frequency
+                if (trackingInterval) {
+                    clearInterval(trackingInterval);
+                    trackingInterval = setInterval(updateTracking, 10000); // Update every 10 seconds
+                }
+            } else {
+                // Page is visible, resume normal update frequency
+                if (trackingInterval) {
+                    clearInterval(trackingInterval);
+                    trackingInterval = setInterval(updateTracking, 5000); // Update every 5 seconds
+                }
+            }
+        });
+    </script>
+</body>
+</html>

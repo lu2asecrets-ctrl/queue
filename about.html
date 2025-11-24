@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عن النظام - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .version-badge {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center">
+                        <i class="fas fa-hospital text-2xl text-blue-600 ml-3"></i>
+                        <span class="text-xl font-bold text-gray-800">نظام إدارة الانتظار</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <span class="text-gray-600">عن النظام</span>
+                    <a href="index.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-home ml-1"></i>
+                        الرئيسية
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-16 min-h-screen p-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 text-center">
+                <i class="fas fa-info-circle text-6xl text-blue-600 mb-4"></i>
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">عن نظام إدارة الانتظار</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    نظام متكامل وحديث لإدارة طوابير الانتظار في المراكز الطبية، مصمم لتحسين تجربة المرضى وتسهيل عمل الإدارة
+                </p>
+            </div>
+
+            <!-- System Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Version Info -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-code-branch text-blue-600 ml-3"></i>
+                        معلومات النظام
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="font-medium text-gray-700">الإصدار الحالي</span>
+                            <span class="version-badge">v2.1.0</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="font-medium text-gray-700">تاريخ الإصدار</span>
+                            <span class="text-gray-600">2024/11/24</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="font-medium text-gray-700">آخر تحديث</span>
+                            <span class="text-gray-600">2024/11/24</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="font-medium text-gray-700">الترخيص</span>
+                            <span class="text-green-600 font-bold">مجاني</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Info -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-cogs text-green-600 ml-3"></i>
+                        التقنيات المستخدمة
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fab fa-html5 text-2xl text-orange-600 ml-3"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">HTML5 & CSS3</div>
+                                <div class="text-sm text-gray-600">واجهة مستخدم حديثة</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fab fa-js-square text-2xl text-yellow-600 ml-3"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">JavaScript</div>
+                                <div class="text-sm text-gray-600">تفاعلية وديناميكية</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-database text-2xl text-blue-600 ml-3"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">Firebase Realtime Database</div>
+                                <div class="text-sm text-gray-600">قاعدة بيانات فورية</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-cloud text-2xl text-purple-600 ml-3"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">GitHub Pages</div>
+                                <div class="text-sm text-gray-600">استضافة سحابية</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center">
+                    <i class="fas fa-star text-yellow-500 ml-3"></i>
+                    المميزات الرئيسية
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="feature-card bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 text-center">
+                        <i class="fas fa-desktop text-4xl text-blue-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">شاشة عرض متقدمة</h4>
+                        <p class="text-sm text-gray-600">عرض الأرقام الحالية مع فيديو توعية وشريط إخباري</p>
+                    </div>
+                    
+                    <div class="feature-card bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 text-center">
+                        <i class="fas fa-volume-up text-4xl text-green-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">نظام صوتي ذكي</h4>
+                        <p class="text-sm text-gray-600">إذاعة الأرقام الصوتية مع إمكانية التسجيل المخصص</p>
+                    </div>
+                    
+                    <div class="feature-card bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 text-center">
+                        <i class="fas fa-mobile-alt text-4xl text-purple-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">متابعة عبر الهاتف</h4>
+                        <p class="text-sm text-gray-600">QR Code لمتابعة رقمك من الهاتف المحمول</p>
+                    </div>
+                    
+                    <div class="feature-card bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 text-center">
+                        <i class="fas fa-print text-4xl text-red-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">طباعة الأرقام</h4>
+                        <p class="text-sm text-gray-600">طباعة أرقام الانتظار بصيغة منظمة</p>
+                    </div>
+                    
+                    <div class="feature-card bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 text-center">
+                        <i class="fas fa-cogs text-4xl text-yellow-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">تحكم كامل</h4>
+                        <p class="text-sm text-gray-600">لوحة تحكم متقدمة لإدارة العيادات والإعدادات</p>
+                    </div>
+                    
+                    <div class="feature-card bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 text-center">
+                        <i class="fas fa-bell text-4xl text-indigo-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">تنبيهات فورية</h4>
+                        <p class="text-sm text-gray-600">إشعارات عبر البريد والواتس عند اقتراب الدور</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Architecture -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-sitemap text-red-600 ml-3"></i>
+                    معمارية النظام
+                </h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">الواجهات</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                                <i class="fas fa-tv text-blue-600 ml-3"></i>
+                                <span class="font-medium">شاشة العرض الرئيسية</span>
+                            </div>
+                            <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                                <i class="fas fa-user-cog text-green-600 ml-3"></i>
+                                <span class="font-medium">لوحة الإدارة</span>
+                            </div>
+                            <div class="flex items-center p-3 bg-purple-50 rounded-lg">
+                                <i class="fas fa-gamepad text-purple-600 ml-3"></i>
+                                <span class="font-medium">لوحة التحكم</span>
+                            </div>
+                            <div class="flex items-center p-3 bg-orange-50 rounded-lg">
+                                <i class="fas fa-mobile-alt text-orange-600 ml-3"></i>
+                                <span class="font-medium">تطبيق العميل</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">الوظائف</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <i class="fas fa-users text-blue-600 ml-3"></i>
+                                <span class="font-medium">إدارة العيادات</span>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <i class="fas fa-list-ol text-green-600 ml-3"></i>
+                                <span class="font-medium">متابعة الأرقام</span>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <i class="fas fa-volume-up text-purple-600 ml-3"></i>
+                                <span class="font-medium">النظام الصوتي</span>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <i class="fas fa-video text-orange-600 ml-3"></i>
+                                <span class="font-medium">مشغل الفيديو</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Support -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center">
+                    <i class="fas fa-headset text-blue-600 ml-3"></i>
+                    الدعم الفني
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center p-6 bg-blue-50 rounded-xl">
+                        <i class="fas fa-envelope text-4xl text-blue-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">البريد الإلكتروني</h4>
+                        <p class="text-sm text-gray-600">support@queue-system.com</p>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-green-50 rounded-xl">
+                        <i class="fas fa-phone text-4xl text-green-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">الهاتف</h4>
+                        <p class="text-sm text-gray-600">+966 5 0000 0000</p>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-purple-50 rounded-xl">
+                        <i class="fab fa-whatsapp text-4xl text-purple-600 mb-4"></i>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">واتساب</h4>
+                        <p class="text-sm text-gray-600">+966 5 0000 0000</p>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-gray-600 mb-4">للحصول على الدعم الفني أو الإبلاغ عن مشكلة</p>
+                    <button onclick="alert('سيتم فتح نموذج التواصل قريباً')" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-comment ml-2"></i>
+                        تواصل معنا
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center mb-4">
+                    <i class="fas fa-hospital text-2xl text-blue-400 ml-3"></i>
+                    <span class="text-xl font-bold">نظام إدارة الانتظار الذكي</span>
+                </div>
+                <p class="text-gray-400 mb-4">حلول متكاملة لإدارة الانتظار في المراكز الطبية</p>
+                <p class="text-sm text-gray-500">© 2024 نظام إدارة الانتظار. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate feature cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all feature cards
+            document.querySelectorAll('.feature-card').forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
