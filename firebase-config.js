@@ -1,14 +1,15 @@
 // Firebase Configuration Template
 // قم بتعديل هذا الملف ووضع إعدادات Firebase الخاصة بك
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "YOUR-API-KEY",
-    authDomain: "YOUR-AUTH-DOMAIN",
-    databaseURL: "YOUR-DATABASE-URL",
-    projectId: "YOUR-PROJECT-ID",
-    storageBucket: "YOUR-STORAGE-BUCKET",
-    messagingSenderId: "YOUR-SENDER-ID",
-    appId: "YOUR-APP-ID"
+  apiKey: "AIzaSyArFKjBYsFhsPyJPJpjLhH2eSEHlUFEzhI",
+  authDomain: "queue-717d5.firebaseapp.com",
+  projectId: "queue-717d5",
+  storageBucket: "queue-717d5.firebasestorage.app",
+  messagingSenderId: "837806460328",
+  appId: "1:837806460328:web:f2070b93a2784b1b25619d",
+  measurementId: "G-GM30LE46F6"
 };
 
 // Local Storage Fallback Functions
